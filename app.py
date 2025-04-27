@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import re
 import requests
 import datetime
 import random
@@ -88,18 +89,43 @@ def format_weather_info(weather: Dict[str, Any]) -> str:
 #     if not attractions:
 #         return "No attractions found."
 #     return "\n".join([f"{i+1}. {place}" for i, place in enumerate(attractions)])
+# def format_attractions_info(attractions: List[Dict[str, Any]], location: str) -> str:
+#     if not attractions:
+#         return "No attractions found."
+
+#     formatted_list = []
+#     for i, place in enumerate(attractions[:5]):  # Show only top 5
+#         title = place.get('title', 'Unknown Attraction')
+#         url = place.get('url')
+#         if url:
+#             formatted_list.append(f"{i+1}. [{title}]({url})")
+#         else:
+#             formatted_list.append(f"{i+1}. {title}")
+    
+#     return "\n".join(formatted_list)
 def format_attractions_info(attractions: List[Dict[str, Any]], location: str) -> str:
     if not attractions:
         return "No attractions found."
 
-    formatted_list = []
-    for i, place in enumerate(attractions[:5]):  # Show only top 5
-        title = place.get('title', 'Unknown Attraction')
-        url = place.get('url')
-        if url:
-            formatted_list.append(f"{i+1}. [{title}]({url})")
-        else:
-            formatted_list.append(f"{i+1}. {title}")
+    extracted_places = []
+
+    for place_info in attractions:
+        content = place_info.get('content', '')
+        
+        # Try to extract numbered place names from the content
+        found_places = re.findall(r'\d+\.\s*([^\n]+)', content)
+        extracted_places.extend(found_places)
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_places = []
+    for place in extracted_places:
+        if place not in seen:
+            unique_places.append(place)
+            seen.add(place)
+
+    # Limit to top 10 attractions
+    formatted_list = [f"{i+1}. {name}" for i, name in enumerate(unique_places[:10])]
     
     return "\n".join(formatted_list)
 
