@@ -84,10 +84,24 @@ def format_weather_info(weather: Dict[str, Any]) -> str:
         f"🕒 Last Updated: {weather['last_updated']}"
     )
 
-def format_attractions_info(attractions: List[str], location: str) -> str:
+# def format_attractions_info(attractions: List[str], location: str) -> str:
+#     if not attractions:
+#         return "No attractions found."
+#     return "\n".join([f"{i+1}. {place}" for i, place in enumerate(attractions)])
+def format_attractions_info(attractions: List[Dict[str, Any]], location: str) -> str:
     if not attractions:
         return "No attractions found."
-    return "\n".join([f"{i+1}. {place}" for i, place in enumerate(attractions)])
+
+    formatted_list = []
+    for i, place in enumerate(attractions[:5]):  # Show only top 5
+        title = place.get('title', 'Unknown Attraction')
+        url = place.get('url')
+        if url:
+            formatted_list.append(f"{i+1}. [{title}]({url})")
+        else:
+            formatted_list.append(f"{i+1}. {title}")
+    
+    return "\n".join(formatted_list)
 
 def format_cost_info(costs: Dict[str, str]) -> str:
     if "error" in costs:
